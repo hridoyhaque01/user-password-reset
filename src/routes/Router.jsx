@@ -1,32 +1,15 @@
 import { createBrowserRouter } from "react-router-dom";
-import Layout from "../layout/Layout";
-import Login from "../pages/authentication/Login";
-import Home from "../pages/home/Home";
-import PrivateRouter from "./PrivateRouter";
+import ForgetPasword from "./Authentication/ForgetPassword";
 
 export const routes = createBrowserRouter([
   {
-    path: "/",
-    element: (
-      <PrivateRouter>
-        <Layout></Layout>
-      </PrivateRouter>
-    ),
-    children: [
-      {
-        path: "/",
-        element: <Home></Home>,
-      },
-    ],
+    path: "/reset-password/:email",
+    element: <ForgetPasword></ForgetPasword>,
   },
   // {
   //   path: "/register",
   //   element: <Register></Register>,
-  // },
-  {
-    path: "/login",
-    element: <Login></Login>,
-  },
+
   {
     path: "*",
     element: (
