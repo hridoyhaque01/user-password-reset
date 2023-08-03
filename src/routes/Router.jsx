@@ -3,7 +3,7 @@ import ForgetPasword from "./Authentication/ForgetPassword";
 
 export const routes = createBrowserRouter([
   {
-    path: "/reset-password/:email",
+    path: "/:email",
     element: <ForgetPasword></ForgetPasword>,
   },
   // {

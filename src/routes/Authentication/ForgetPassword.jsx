@@ -1,9 +1,30 @@
-import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 
 const ForgetPasword = () => {
-  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const { email } = useParams();
+  const [isStrong, setIsStrong] = useState(false);
+
+  function checkPasswordStrength(event) {
+    const password = event.target.value;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasLength = password.length >= 8;
+    const hasSpecialSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    if (
+      hasUppercase &&
+      hasLowercase &&
+      hasNumber &&
+      hasLength &&
+      hasSpecialSymbol
+    ) {
+      setIsStrong(true);
+    } else {
+      setIsStrong(false);
+    }
+  }
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -13,14 +34,13 @@ const ForgetPasword = () => {
     if (password !== confirmPassword) {
       return alert("password doesn't match");
     }
-
     const data = {
-      email: email + "@gmail.com",
+      email: email,
       newPassword: password,
     };
-
     const formData = new FormData();
     formData.append("data", JSON.stringify(data));
+    setIsLoading(true);
 
     try {
       const result = await fetch(
@@ -33,12 +53,18 @@ const ForgetPasword = () => {
       if (result.ok) {
         const data = await result.json();
         const modifiedCount = data.modifiedCount;
-        console.log("Modified Count:", modifiedCount);
-      } else {
-        console.log("Failed to update Password");
+        if (modifiedCount > 0) {
+          alert("password update successfull!");
+          form.reset();
+        } else {
+          alert("Failed to update Password");
+        }
       }
+      setIsLoading(false);
     } catch (error) {
       console.log(error);
+      alert("Something went wrong!");
+      setIsLoading(false);
     }
   };
 
@@ -61,14 +87,23 @@ const ForgetPasword = () => {
                 <p className="text-sm text-pureBlackColor font-bold mb-2">
                   New Password
                 </p>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="Password"
-                  required
-                  className="input bg-transparent border border-fadeReg focus:outline-none w-full p-3 rounded-md"
-                  autoComplete="off"
-                />
+                <div>
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    required
+                    className="input bg-transparent border border-fadeReg focus:outline-none w-full p-3 rounded-md"
+                    autoComplete="off"
+                    onChange={(e) => checkPasswordStrength(e)}
+                  />
+                  {!isStrong && (
+                    <p className="text-[10px]">
+                      must contain more than 7 character with uppercase,
+                      lowercase, symble and number
+                    </p>
+                  )}
+                </div>
               </div>
               <div>
                 <p className="text-sm text-pureBlackColor font-bold mb-2">
@@ -83,19 +118,11 @@ const ForgetPasword = () => {
                   autoComplete="off"
                 />
               </div>
-              {/* <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="remember"
-                  placeholder="Password"
-                  className=" bg-whiteLow "
-                />
-                <p className="text-blackSemi">Remeber me</p>
-              </div> */}
+
               <button
                 className="mt-4 mb-6 py-3.5 rounded-full bg-primaryColor text-white border-0 font-bold"
                 type="submit"
-                // disabled={isLoading}
+                disabled={isLoading || !isStrong}
               >
                 Reset Password
               </button>
